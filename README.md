@@ -135,7 +135,7 @@ adiacenti. Questa somma pesata può ottenrsi facilmente con un blur Gaussiano.
 Per i gradienti usate i filtir di sobel, come avete fatto nell'esercitazione 
 3 sul Canny Edge detector. 
 
-### 1.1b Make a fast smoother ###
+### 1.1b rendere più veloce lo smoothing ###
 
 Per rendere l'implementazione più efficiente,
 usate la proprietà di separabilità del filtro gaussiano e implementatelo
@@ -145,32 +145,58 @@ Invece di usare un filtro NxN bidimensionale, ne userete due 1xN e Nx1.
 Per farlo completate `Image make_1d_gaussian(float sigma)` e 
 `Image smooth_image(const Image& im, float sigma)` .
 
-## 1.2 Computer cornerness from structure matrix ##
+## 1.2 Calcolare i candidati (cornerness function) a partire dealla matrice S ##
 
-Fill in `Image cornerness_response(const Image& S, int method)`. Return `det(S)/tr(S)` for each pixel, if `method==0`, or if `method==1` return exact 2nd eigenvalue. The case of `method==1` is optional.
+Completate la funzione `Image cornerness_response(const Image& S, int method)`. 
+Ritornate `det(S)/tr(S)` per ciascun pixel. La funzione si aspetta un 
+parametro `method`. Nel caso sia `1`, ritornate il secondo autovalore invece di 
+`det(S)/tr(S)`.
 
 ## 1.3 Non-maximum suppression ##
 
-We only want local maximum responses to our corner detector so that the matching is easier. Fill in `Image nms_image(const Image& im, int w)`.
+Completate `Image nms_image(const Image& im, int w)`.
 
-For every pixel in `im`, check every neighbor within `w` pixels (Chebyshev distance). Equivalently, check the `2w+1` window centered at each pixel. If any responses are stronger, suppress that pixel's response (set it to a very low negative number).
+**[CAPIRE SE RILEVANTE] For every pixel in `im`, check every neighbor within 
+`w` pixels (Chebyshev 
+distance). Equivalently, check the `2w+1` window centered at each pixel. If 
+any responses are stronger, suppress that pixel's response (set it to a very 
+low negative number).**
 
-## 1.4 Complete the Harris detector ##
+## 1.4 Completate l'Harris detector ##
 
-Fill in the missing sections of `vector<Descriptor> detect_corners(const Image& im, const Image& nms, float thresh, int window)`. The function should return an vector of descriptors for corners in the image. Code for calculating the descriptors is provided, though you can vary the size of the described window around each corner with the parameter `window`.
+> NB: la funzione che vogliamo implementare utilizza due elementi del C++ che 
+non è detto che conosciate: la struttura adati `vector` che fa parte della 
+Standard Template Library del C++ e i Template. La prima è semplicemente una 
+struttura dati dinamica che gestisce da sola la memoria. In pratica è come 
+un array di python, per semplificare molto la questione. I Template invece 
+sono uno strumento del linguaggio C++ per gestire tipi diversi e arbitrari. 
+In questo caso noi vogliamo un array di *descrittori*, e questo si indica in 
+C++ così: `vector<Descriptor>`. Chiaramente `Descriptor` deve essere un tipo 
+di dato valido nel contesto del progetto, cioè deve esistere una class o una 
+struct che lo definisce. 
 
-After you complete this function you should be able to calculate corners and descriptors for an image! Try running:
+Completate le parti mancanti di `vector<Descriptor> detect_corners(const Image& im, const Image& nms, float thresh, int window)`.
+La funzione dovrebbe ritornare un vector di descrittori dei corner 
+dell'immagine. Il codice che calcola i descrittori è fornito, ma potete 
+variare la dimensione della finestra attorno ogni corner trovato usando il 
+parametro `window`.
+
+Una volta completata questa funzione dovreste riuscire a calcolare le 
+feature dell'immagine. Provare a eseguire queste linee di codice:
 
     Image im = load_image("data/Rainier1.png");
     Image corners=detect_and_draw_corners(im, 2, 0.2, 5, 3, 0);
     save_image(corners, "output/corners");
 
-
-This will detect corners using a Gaussian window of 2 sigma, a "cornerness" threshold of 100, and an nms distance of 3 (or window of 7x7). It should give you something like this:
+Queste dovrebbero individuare i corner usando una finestra gaussiana di 2 
+sigma, una threshold di 100 e una distanza di nms di 3 (cioè una finestra di 
+7x7). Dovreste avere un risultato simile a questo:
 
 ![rainier corners](figs/corners.jpg)
 
-Corners are marked with the crosses. They seem pretty sensible! Lots of corners near where snow meets rock and such. Try playing with the different values to see how the affect our corner detector.
+Gli angoli sono evidenziati con le croci. Sembra che l'algoritmo sia mollto 
+sensibile, in quanto ci sono molti corner vicino ai punti dove la neve 
+incontra la roccia. Provate a giocare con i parametri per vedere cosa succede.
 
 ## 2 Patch matching ##
 
