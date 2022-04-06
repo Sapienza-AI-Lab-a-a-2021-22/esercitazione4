@@ -117,24 +117,33 @@ min/max nella regione evidenziata.
 
 ## 1. Harris corner detection ##
 
-We'll be implementing Harris corner detection as discussed in class. The basic algorithm is:
+L'algoritmo fondamentale è questo:
 
-    Calculate image derivatives Ix and Iy.
-    Calculate measures IxIx, IyIy, and IxIy.
-    Calculate structure matrix components as weighted sum of nearby measures.
-    Calculate Harris "cornerness" as estimate of 2nd eigenvalue: det(S)/tr(S)
-              Alternatively (Optionally) find the exact 2nd eigenvalue
-    Run non-max suppression on response map
+    Calcolo delle derivate Ix e Iy
+    Calcolo delle componenti IxIX IyIy e IxIy
+    Calcolo della matrice di struttura come somma pesata delle misure adiacenti.
+    Calcolo dei corner usando la funzione R = det(S)/tr(S), oppure estraendo 
+        il 2° autovalore
+    Utilizzare non-max suppression per ottenere i corner
 
-## 1.1 Compute the structure matrix ##
+## 1.1 Calcolo della matrice di struttura ##
 
-Fill in `Image structure_matrix(const Image& im2, float sigma)` in `harris_image.cpp`. This will perform the first 3 steps of the algorithm: calculating derivatives, the corresponding measures, and the weighted sum of nearby derivative information. As discussed in class, this weighted sum can be easily computed with a Gaussian blur. For gradients use the sobel filters (slightly smoothed versions of the regular -101 filter). You should use your `make_gx_filter` and `make_gy_filter` from HW2.
+Completate la funzione `Image structure_matrix(const Image& im2, float sigma)`
+ in `harris_image.cpp`. Questa effettua i primi tre step dell'algoritmo: 
+calcolo delle derivate, calcolo dei fattori e somma pesata delle derivate 
+adiacenti. Questa somma pesata può ottenrsi facilmente con un blur Gaussiano.
+Per i gradienti usate i filtir di sobel, come avete fatto nell'esercitazione 
+3 sul Canny Edge detector. 
 
 ### 1.1b Make a fast smoother ###
 
-You want a fast corner detector! You have to decompose the Gaussian blur from one large 2d convolution to 2 1d convolutions. Instead of using an N x N filter you should convolve with a 1 x N filter followed by the same filter flipped to be N x 1.
+Per rendere l'implementazione più efficiente,
+usate la proprietà di separabilità del filtro gaussiano e implementatelo
+usando `make_gx_filter` e `make_gy_filter` dell'esercitazione 2.
+Invece di usare un filtro NxN bidimensionale, ne userete due 1xN e Nx1.
 
-Fill in `Image make_1d_gaussian(float sigma)` and `Image smooth_image(const Image& im, float sigma)` to use this decomposed Gaussian smoothing.
+Per farlo completate `Image make_1d_gaussian(float sigma)` e 
+`Image smooth_image(const Image& im, float sigma)` .
 
 ## 1.2 Computer cornerness from structure matrix ##
 
