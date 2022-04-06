@@ -1,18 +1,21 @@
 ![panorama of field](figs/columbia-all.jpg)
 
-#### NEW: Visual studio solutions provided. More info in section 0.5 ####
+# Esercitazione 4 parte 1 #
 
-# CSE 576 Homework 5 #
+Per questa esercitazione utilizzerete i risultati delle prime due 
+esercitazioni, più precisamente i file `process_image.cpp`, `filter_image.
+cpp` e `resize_image.cpp`. Vengono forniti i file di soluzione già inclusi, 
+ma potete sovrascriverli con i vostri. Oltre a questo, troverete i test1 e 
+test2 come verifica che tutto funzioni. 
 
-Welcome friends,
+test5 invece è il programma che produrrà la foto panoramica basata sulla 
+vostra implementazione dei vari algoritmi necessari, oltre a effettuare 
+qualche test. 
 
-It's time for assignment 2! This one may be a little harder than the last one so remember to start early and start often!
+Le funzioni di timing possono essere rimosse aggiungendo `#define TIME(a)` 
+alla fine di `utils.h`
 
-Copy your `process_image.cpp`, `filter_image.cpp`, and `resize_image.cpp` from HW1 and HW2. You can use `./test1`, `test2` to test your previous code as well. Also `./test5` is provided which is a sample driver program and does some basic tests and runs most parts of your algorithm. If `./test5` runs without errors and produces some panoramic images as well as good matches then it's a good chance that you are about 75% done.
-
-If you want to remove timing information, add `#define TIME(a)` at the end of `utils.h`
-
-## Let's make a panorama! ##
+## Creare un panorama ##
 
 This homework covers a lot, including finding keypoints in an image, describing those key points, matching them to those points in another image, computing the transform from one image to the other, and stitching them together into a panorama.
 
