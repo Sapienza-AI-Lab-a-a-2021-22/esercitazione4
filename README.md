@@ -17,10 +17,13 @@ alla fine di `utils.h`
 
 ## Creare un panorama ##
 
-This homework covers a lot, including finding keypoints in an image, describing those key points, matching them to those points in another image, computing the transform from one image to the other, and stitching them together into a panorama.
+Quesa prima parte dell'esercitazione 4 copre gli algoritmi per estrarre ie 
+key points e per fare il matching con quelli di un'altra immagine. 
+Nella seconda parte implementerete la trasformazione di un immagine 
+nell'altra, creando il panorama.
 
-The high-level algorithm is already done for you! You can find it near the bottom of `src/panorama_image.cpp`, it looks approximately like:
-
+L'algoritmo di alto livello è già implementato, si trova nel file 
+`src/panorama_image.cpp`. La sua struttura è approssimativamente questa:
 
     Image panorama_image(const Image& a, const Image& b, float sigma, int corner_method, float thresh, int window, int nms, float     inlier_thresh, int iters, int cutoff, float acoeff)
       {
@@ -38,12 +41,11 @@ The high-level algorithm is already done for you! You can find it near the botto
       return combine_images(a, b, Hba, acoeff);
       }
 
+I corner verranno estratti con un Harris corner detector. Quinidi faremo il 
+matching di questi punti. Nella seconda parte dell'esercitazione vedremo gli 
+altri passi in dettaglio.
 
-So we'll find the corner points in an image using a Harris corner detector. Then we'll match together the descriptors of those corners. We'll use RANSAC to estimate a projection from one image coordinate system to the other. Finally, we'll stitch together the images using this projection.
-
-First we need to find those corners!
-
-## 0. Visualization with Pangolin ##
+## 0. Visualizzazione con Pangolin ##
 In order to help debugging we introduce the functions `detect_and_draw_corners` and `find_and_draw_matches` which visualize the results of the functions that you implemented. Look in `test2.cpp` and in the code as to how to use them.
 
 Also if you want to bring your visualization to the next level we introduce another tool: Pangolin!
@@ -191,149 +193,3 @@ Once this is done we can show the matches we discover between the images:
 Which gives you:
 
 ![matches](figs/matches.jpg)
-
-
-## 3. Fitting our projection to the data ##
-
-Now that we have some matches we need to predict the projection between these two sets of points! However, this can be hard because we have a lot of noisy matches. Many of them are correct but we also have some outliers hiding in the data.
-
-## 3.1 Projecting points with a homography ##
-
-Implement `Point project_point(const Matrix& H, const Point& p)` to project a point using matrix `H`. You can do this with the provided matrix library (see `src/matrix.cpp` and `src/matrix.h`). We have overloaded some operators and shortcuts for vectors. Interface is similar to Matlab matrix ops. Or you could pull out elements of the matrix and do the math yourself. Whatever you want! Just remember to do the proper normalization for converting from homogeneous coordinates back to image coordinates. (We talked about this in class).
-
-## 3.2a  Calculate distances between points ##
-
-`double point_distance(const Point& p, const Point& q)`. L2 distance. You know the formula.
-
-## 3.2b Calculate model inliers ##
-
-Figure out how many matches are inliers to a model. Fill in `vector<Match> model_inliers(const Matrix& H, const vector<Match>& m, float thresh)` to loop over the points, project using the homography, and check if the projected point is within some `thresh` old distance of the actual matching point in the other image. Return a `vector<Match>` of the inliers.
-
-## 3.3 Randomize the matches ##
-
-One of the steps in RANSAC is drawing random matches to estimate a new model. One easy way to do this is randomly shuffle the array of matches and then take the first `n` elements to fit a model.
-
-Implement the [Fisher-Yates shuffle](https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#The_modern_algorithm) in `void randomize_matches(vector<Match>& m)`.
-
-## 3.4 Fitting the homography ##
-
-We will solve for the homography using the matrix operations discussed in class to solve equations like `M a = b`. Most of this is already implemented, you just have to fill in the matrices `M` and `b` with our match information in the first TODO in `Matrix compute_homography_ba(const vector<Match>& matches)`.
-
-You also have to read out the final results and populate our homography matrix. Consult the slides for details about what should go where, or derive it for yourself using the projection equations!
-
-## 3.5 Implement RANSAC ##
-
-Implement the RANSAC algorithm discussed in class in `Matrix RANSAC(vector<Match> m, float thresh, int k, int cutoff)`. Pseudocode is provided.
-
-## 3.6 Combine the images with a homography ##
-
-Now we have to stitch the images together with our homography! Given two images and a homography, stitch them together with `Image combine_images(const Image& a, const Image& b, const Matrix& Hba, float ablendcoeff)`.
-
-Some of this is already filled in. The first step is to figure out the bounds to the image. To do this we'll project the corners of `b` back onto the coordinate system for `a` using `Hinv`. Then we can figure out our "new" coordinates and where to put `Image a` on the canvas. Paste `a` in the appropriate spot in the canvas.
-
-Next we need to loop over pixels that might map to `Image b`, perform the mapping to see if they do, and if so fill in the pixels with the appropriate color from `b`. Our mapping will likely land between pixel values in `b` so use bilinear interpolation to compute the pixel value (good thing you already implemented this!).
-
-Where the two images overlap (How do we check for that?) implement blending. Scale the pixel from `a` with `ablendcoeff` and the pixels coming from `b` with `1-ablendcoeff`.
-
-With all this working you should be able to create some basic panoramas:
-
-    Image im1 = load_image("data/Rainier1.png");
-    Image im2 = load_image("data/Rainier2.png");
-    Image pan=panorama_image(a,b,2,0,0.3,7,3,5,1000,50,0.5);
-    save_image(pan, "easy_panorama");
-
-![panorama](figs/easy_panorama.jpg)
-
-## 4 Projections ##
-Mapping all the images back to the same coordinates is bad for large field-of-view panoramas, as discussed in class. Our pipeline is going to change by reprojecting out images to different coordinates before inputting them to `panorama_image`.
-
-### 4.1 Cylindrical ###
- Implement `Image cylindrical_project(const Image& im, float f)` to project an image to cylindrical coordinates and then unroll it. Then stitch together some very big panoramas (the `field*.jpg` panorama)
-
-    Image pan=panorama_image(cylindrical_project(a,500),cylindrical_project(b,500),2,0,0.3,7,3,5,1000,50,0.5);
-    save_image(pan, "easy_panorama_cyl");
-
-![panorama_cyl](figs/easy_panorama_cyl.jpg)
-
-### 4.2 Spherical (Extra credit) ###
-Implement `Image spherical_project(const Image& im, float f)` to project an image to spherical coordinates and then unwarp it. Then stitch together some very big panoramas (the `field*.jpg` panorama)
-
-    Image pan=panorama_image(spherical_project(a,500),spherical_project(b,500),2,0,0.3,7,3,5,1000,50,0.5);
-    save_image(pan, "easy_panorama_sphere");
-
-![panorama_sphere](figs/easy_panorama_sphere.jpg)
-
-### 4.3 Discussion ###
-Will the same `combine_images` function work with different projections? What are the significant changes that we have to make?
-
-What is the correct way to find the transformation between the two images in non-planar coordinates?
-
-What are the equivalent transformations in spherical and cylindrical coordinates to `scaling`, `translation`, `shear`, `rotation`, etc.
-
-Will the same algorithm for computing homography work with different projections?
-
-Does homography even exist in the cylindrical and spherical case?
-
-## 5 Making panoramas and extra credit ##
-
-#### 5.1 Make some panoramas ####
-In order to get perfect grade you not only need to implement each feature of the algorithm but be able to run it to stitch multiple images together. We have provided the program `make-panorama` that can calls your basic function `make_panorama` to create complex panoramas. You would need to choose the parameters of your algorithm. Make sure that the parameters are such that your algorithm can stitch complex panos. If necessary use the `panorama` GUI to help with parameter choosing. Some of the functions are implemented there and some not. For `sun` and `helens` you have to choose the order of stitching yourself. At the end you should make the necessary changes to `panorama.cpp` so that when we call
-
-    ./make-panorama rainier
-    ./make-panorama sun
-    ./make-panorama helens
-    ./make-panorama field
-    ./make-panorama columbia
-
-We get `output/XXX/all.png` that looks stiched well (small imperfection such as in `columbia-all.jpg` are acceptable).
-
-#### 5.2 Extra credit ####
-1. Implement exact 2nd eigenvalue! - 5pts.
-2. Implement spherical projection! - 5pts.
-3. Make panorama with all at least a set of 8 pics of yours. - 5 pts. You might need to tweak the parameters, such as the focal length when loading the images and the projection that you want to produce the images in. For that you might want to use the GUI tools to see your results in realtime. Or use this link: [How to measure focal length.](https://www.lightandmatter.org/2015/tech-photography-articles/how-to-calculate-a-lens-focal-length-slightly-simplified/). Make sure you convert your measurements to pixels as opposed to millimeters. Additionally you can refer to Rick's textbook, chapter 11.1.3 on how to use homography to calculate the focal length.
-
-#### 5.3 For Fun ####
-Play with `make-panorama wall/cse/columbia`. Can you stitch them? If not why? Is it because of bad projections? Try `wall`. This contains archaeological writings from the last few years and makes for a nice flat panorama. Remember, homography should only work on flat surfaces!! Try stitching any two overlapping images. Notice how perfect the stitching is?? Now try to do more! Notice any problems? Why is that? Do we need better features (sift?) ? Why does geometry looks so distorted?? Wasn't homography fine for flat surfaces? What's going on?? Can you figure out a way to fix it?
-
-You are not graded on this, but highly recommended to play with those. It'll help you get a lot of intuition about cameras, 3d/2d geometry and projections and features. Making a panorama software has so many components!!
-
-
-## 6 Turn it in and Grading ##
-
-#### 6.1 What to turn in ####
-You should have to modify only `harris_image.cpp`, `panorama_image.cpp` and `test\panorama.cpp`. You should submit just these 3 files and your optional panorama. We are going to test each function separately to give you partial credit.
-
-#### 6.2 Grading ####
-    make_1d_gaussian     3
-    smooth_image         5
-    structure_matrix     6
-    cornerness_response  3
-    nms_image            3
-    detect_corners       4
-                        24
-
-    l1_distance              1
-    match_descriptors_a2b    5
-    match_descriptors        5
-    project_point            3
-    point_distance           1
-    model_inliers            5
-    randomize_matches        2
-    compute_homography_ba    8
-    RANSAC                   8
-    combine_images           11
-    cylindrical_project      7
-                            56
-
-    ./make-panorama rainier    4 (easy case, have to stitch all of them)
-    ./make-panorama sun        4 (easy case, have to stitch all of them)
-    ./make-panorama helens     4 (easy case, have to stitch all of them)
-    ./make-panorama field      4 (harder, have to stitch just 6 of them, using cylindrical)
-    ./make-panorama columbia   4 (this is harder, but if your implementation is good you would get a big mountain panorama)
-                              20
-
-    EXTRA CREDIT:
-
-    spherical_project            5  OPTIONAL                         
-    exact_eigenvalue,method=1    5  OPTIONAL
-    your panorama                5 OPTIONAL
