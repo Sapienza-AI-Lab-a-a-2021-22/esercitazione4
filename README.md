@@ -46,14 +46,22 @@ matching di questi punti. Nella seconda parte dell'esercitazione vedremo gli
 altri passi in dettaglio.
 
 ## 0. Visualizzazione con Pangolin ##
-In order to help debugging we introduce the functions `detect_and_draw_corners` and `find_and_draw_matches` which visualize the results of the functions that you implemented. Look in `test2.cpp` and in the code as to how to use them.
+Per poter fare debugging introduciamo le funzioni `detect_and_draw_corners` 
+e  `find_and_draw_matches` che visualizza i risultati delle funzioni che 
+implementerete. Inoltre, per visualizzare le gli output in questa 
+esercitazione useremo Pangolin:
 
-Also if you want to bring your visualization to the next level we introduce another tool: Pangolin!
 ![pangolin](figs/screenshot.png)
 
-It allows you to modify the parameters of your algorithms and visualize the results immediately. To make use of it go to [Pangolin GitHub](https://github.com/stevenlovegrove/Pangolin). Pangolin supports Linux, Windows and MacOS. However, we can only help you install in on Linux, but if you manage to build it on MacOS or Windows please share!
+È un software gratuito che permette di modificare i parametri degli 
+algoritmi che implementerete e di visualizzare i risultati immediatamente. 
+Per sapernte di più andate sul repo: 
+[Pangolin GitHub](https://github.com/stevenlovegrove/Pangolin). 
+Pangolin supporta Linux, Windows and MacOS. Di seguito le istruzioni di 
+installazione su Linux e gli altri sistemi. Per Linux possiamo aiutarvi, per 
+Windows e MacOS dovrete cavarvela con i forum online se qualcosa non va. 
 
-### 0.1 Install Pangolin on Ubuntu or Debian ###
+### 0.1 Installazione su Ubuntu o Debian ###
     sudo apt-get install libglew-dev libxkbcommon-dev
     git clone https://github.com/stevenlovegrove/Pangolin.git
     cd Pangolin
@@ -62,9 +70,9 @@ It allows you to modify the parameters of your algorithms and visualize the resu
     cmake ..
     make -j4
 
-Install any missing dependencies.
+Ovviamente installate tutte le dipendenze che dovessero mancare.
 
-### 0.2 Install Pangolin on Fedora or CentOS (Including CSE VM) ###
+### 0.2 Istallazione su Fedora o CentOS ###
     sudo yum install glew-devel.x86_64
     git clone https://github.com/stevenlovegrove/Pangolin.git
     cd Pangolin
@@ -73,48 +81,39 @@ Install any missing dependencies.
     cmake ..
     make -j4
 
-Install any missing dependencies.
+Installate tutte le dipendenze che dovessero mancare.
 
+### 0.4 Installazione su MacOS (senza supporto) ###
+Ecco un link che può servire: 
+[Pangolin GitHub macOS issue](https://github.com/stevenlovegrove/Pangolin/issues/298)
 
-### 0.3 Install Pangolin on CSE machines without root access ###
-    git clone https://github.com/stevenlovegrove/Pangolin.git
-    cd Pangolin
-    mkdir build
-    cd build
+### 0.5 Istallazione su Windows ###
+Potete trovare la soluzione dell'esercizio nella sottocartella  
+`/vs/cse576-hw5` . Vi rimando al repo originale per i dettagli: 
+[repo cse576-hw5](https://github.com/holynski/cse576_sp20_hw5)
 
-    #### CHANGE NEXT LINE
-    hw2dir=/home/swetko/cse576/cse457-hw5-2020 #### PUT YOUR cse576-hw5-2020 folder here!!!
-    #### CHANGE PREVIOUS LINE
+### 0.6 Compilazione e set-up ###
+In Linux dovrebbe bastare compilare per rendere Pangolin diponibile al 
+vostro progetto. Fate cmake dell'esercitazione in questo modo:
 
-    cmake .. -DGLEW_INCLUDE_DIR=$hw2dir/glew/include/ -DGLEW_LIBRARY=$hw2dir/glew/lib/libGLEW.so -DGLEW_FOUND=TRUE
-    make -j4
-
-### 0.4 Install Pangolin on MacOS ###
-Here's a link that might help: [Pangolin GitHub macOS issue](https://github.com/stevenlovegrove/Pangolin/issues/298)
-
-### 0.5 Install Pangolin on Windows ###
-You can find Visual Studio Solution for this homework in the `/vs/cse576-hw5` subfolder. It includes the pangolin library itself in `/vs`.
-You might have to retarget each project if you are using a different version of VS or whatever. VS will suggest the proper version automatically. The problem is that we are supplying Pangolin compiled with a specific version of VS and your project has to match it.
-
-IMPORTANT: Once you compile the visualization tools, try running them. If you get just a black window, try resizing the window. That should make the GUI appear.
-
-### 0.6 Set up your project ###
-On linux once you compile Pangolin, it should be found by our project.
-
-    cd cse455-hw2
+    cd ai-lab_es4
     cd build
     cmake ..
 
-
-You should see this output if Pangolin is found
+e dovreste avere questo output:
 
     ---------------------------------------------
     Pangolin found!!!!
     Building WITH Visualization
     ---------------------------------------------
 
-### 0.7 Useful shortcuts ###
-You can use scroll to zoom in/out in pictures. Try zooming in A LOT and pressing 'n'. That switches between NN and Bilinear display of the images in pangolin. You can use right click to move the image around and left click to select regions. Try selecting a region and pressing 'a'. Try different regions! Do you notice what's happening? It normalizes the intensity so the patch you selected is between 0 and 1. This way you can inspect underexposed pictures, etc. Try pressing 'b' in a region! Look in the command line! It shows the min/max value in region!
+### 0.7 Shortcuts utili ###
+Lo zoom si controlla con lo scroll. Una volta aumentato lo zoom di molto, 
+pigiate `n` per cambiare tra interpolazione NN e bilineare.
+Il carattere `a` normalizza l'intensità della patch visualizzata tra 0 e 1. 
+In questo modo potete analizzare meglio zone sotto o sovra esposte. 
+Se invece premete `b` nella linea di comando dovreste vedere il valore 
+min/max nella regione evidenziata.
 
 ## 1. Harris corner detection ##
 
