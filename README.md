@@ -168,7 +168,7 @@ low negative number).**
 non è detto che conosciate: la struttura adati `vector` che fa parte della 
 Standard Template Library del C++ e i Template. La prima è semplicemente una 
 struttura dati dinamica che gestisce da sola la memoria. In pratica è come 
-un array di python, per semplificare molto la questione. I Template invece 
+una `list` di python, per semplificare molto la questione. I Template invece 
 sono uno strumento del linguaggio C++ per gestire tipi diversi e arbitrari. 
 In questo caso noi vogliamo un array di *descrittori*, e questo si indica in 
 C++ così: `vector<Descriptor>`. Chiaramente `Descriptor` deve essere un tipo 
@@ -200,30 +200,49 @@ incontra la roccia. Provate a giocare con i parametri per vedere cosa succede.
 
 ## 2 Patch matching ##
 
-To get a panorama we have to match up the corner detections with their appropriate counterpart in the other image. The descriptor code is already written for you. It consists of nearby pixels except with the center pixel value subtracted. This gives us some small amount of invariance to lighting conditions. Note that the function `Descriptor describe_index(const Image& im, int x, int y, int w)` also take as a parameter the window for the size of the descriptor.
+Per ottenere un panorama dobbiamo effettuare un 
+accoppiamento (matching) dei corner estratti dalle due immagini. Come già 
+detto il codice per calcolare il descrittore è già stato scritto per voi. 
+Consiste nella vettorizzazone dei pixel adiacenti a quello centrale, ma 
+sottraendo il valore di quest'ultimo. Questo ci da un minimo di invarianza 
+all'illuminazione. Fate attienzione che il descrittore `Descriptor 
+describe_index(const Image& im, int x, int y, int w)` prende come parametro 
+anche la finestra di dimensione del descrittore.
 
-The rest of the homework takes place in `src/panorama_image.cpp`.
+Il resto dell'esercitio consiste nella modifica del file `src/panorama_image.cpp`.
 
-## 2.1 Distance metric ##
-For comparing patches we'll use L1 distance. Squared error (L2 distance) can be problematic with outliers as we saw in class. We don't want a few rogue pixels to throw off our matching function. L1 distance (sum absolute difference) is better behaved with some outliers.
+## 2.1 funzione di distanza ##
+Per confrontare le patch useremo la distanza L1. La distanza L2 può dare 
+problemi con gli outliers che potrebbero esserci, in quanto enfatizza le 
+distanze di questi e le fa pesare molto rispetto agli altri.
 
-Implement float `l1_distance(float *a, float *b, int n)` between two vectors of floats. The vectors and how many values they contain is passed in.
+Implementate `float l1_distance(float *a, float *b, int n)` che calcola la 
+distanza tra due vettori di float. In questo caso i vettori sono 
+rappresentati come semplici puntatori e non con `std::vector`, quindi anche 
+la lunghezza `n` dei vettori viene passata.
 
-## 2.2a Find the best matches from A to B ##
+## 2.2a Trovare il miglior accoppiamento tra A e B ##
 
-First we'll look through descriptors for `Image a` and find their best match with descriptors from `Image b`. Fill in `vector<int> match_descriptors_a2b(const vector<Descriptor>& a, const vector<Descriptor>& b)`.
+Per calcolare il miglior accoppiamento, dobbiamo scorrere tra i descrittori 
+dell'`Image a` e trovare per ciascuno il descrittore più vicino dall'`Image 
+b`. Completate `vector<int> match_descriptors_a2b(const vector<Descriptor>& a, const vector<Descriptor>& b)`.
 
-## 2.2b Eliminate non-symmetric matches  ##
+## 2.2b Eliminare le coppie non simmetriche  ##
 
-`match_descriptors_a2b` finds the best match in `b` for each descriptor in `a`. What if that descriptor in `b` itself has a better match in `a`. Be a good matchmaker and find the matches between the descriptors in `a[]` and `b[]`, such that each descriptor in a match is the best for other.
+La funzione `match_descriptors_a2b` trova il descrittore più vicino in `b` a 
+partire da `a`, ma se ci riflettete, questo accoppiamento non è 
+necessariamente simmetrico, in quanto da un vantaggio ai descrittori che 
+vengono considerati per primi. Per mitigare questo effetto, una approccio 
+standard è calcolare l'accoppiamento anche tra `b` a `a`, mantenendo alla 
+fine solo gli accoppiamenti che sono verificati in due direzioni. 
 
-Once this is done we can show the matches we discover between the images:
+Una volta fatto questo potete mostrare i matches tra le immagini:
 
     Image a = load_image("data/Rainier1.png");
     Image b = load_image("data/Rainier2.png");
     Image m = find_and_draw_matches(a, b, 2, 0.4, 7, 3, 0);
     save_image(m, "output/matches");
 
-Which gives you:
+Che dovrebbe darvi:
 
 ![matches](figs/matches.jpg)
