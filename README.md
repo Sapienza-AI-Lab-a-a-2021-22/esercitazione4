@@ -62,7 +62,7 @@ installazione su Linux e gli altri sistemi. Per Linux possiamo aiutarvi, per
 Windows e MacOS dovrete cavarvela con i forum online se qualcosa non va. 
 
 ### 0.1 Installazione su Ubuntu o Debian ###
-    sudo apt-get install libglew-dev libxkbcommon-dev
+    sudo apt-get install libglew-dev libxkbcommon-dev libeigen3-dev
     git clone https://github.com/stevenlovegrove/Pangolin.git
     cd Pangolin
     mkdir build
