@@ -203,7 +203,6 @@ Image make_emboss_filter()
 // returns basic gaussian filter
 Image make_gaussian_filter(float sigma)
 {
-    // TODO: Implement the filter
 
     int w = ceil (sigma * 6);
     if (!(w % 2))

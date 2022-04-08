@@ -70,3 +70,5 @@ inline unsigned int myrand() { static std::mt19937 mt; return mt(); }
 
 
 #define NOT_IMPLEMENTED() do{static bool done=false;if(!done)fprintf(stderr,"Function \"%s\"  in file \"%s\" line %d not implemented yet!!!\n",__FUNCTION__, __FILE__, __LINE__);done=true;}while(0)
+
+//#define TIME(a)
