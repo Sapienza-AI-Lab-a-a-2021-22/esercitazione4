@@ -131,9 +131,20 @@ L'algoritmo fondamentale è questo:
 Completate la funzione `Image structure_matrix(const Image& im2, float sigma)`
  in `harris_image.cpp`. Questa effettua i primi tre step dell'algoritmo: 
 calcolo delle derivate, calcolo dei fattori e somma pesata delle derivate 
-adiacenti. Questa somma pesata può ottenrsi facilmente con un blur Gaussiano.
-Per i gradienti usate i filtir di sobel, come avete fatto nell'esercitazione 
-3 sul Canny Edge detector. 
+adiacenti. __NB: Questa somma pesata può ottenersi facilmente con un blur 
+Gaussiano.__ Oltre a questo, fate caso che nella funzione `structure_matrix` 
+i valori della matrice S dovrebbero essere salvati in una struttura di tipo 
+`Image`. Questo non è semplicemente un fatto di circostanza: salvare i 
+valori Ix^2, Iy^2 e IxIy nei canali R, G e B della `Image S(...)` permette 
+poi di fare la convoluzione con la gaussiana in un colpo solo grazie alle 
+funzioni già implementate.  
+Per i gradienti usate lo stesso tipo di codice usato per il filtro di sobel, 
+come avete fatto nell'esercitazione 3 sul Canny Edge detector. 
+
+Potete visualizzare il risultato salvato da `test4` con il nome di 
+`output/structure.png` e confrontarlo con il riferimento `data/structure.png`:
+
+![structure values](data/structure.png)
 
 ### 1.1b rendere più veloce lo smoothing ###
 
@@ -148,9 +159,12 @@ Per farlo completate `Image make_1d_gaussian(float sigma)` e
 ## 1.2 Calcolare i candidati (cornerness function) a partire dealla matrice S ##
 
 Completate la funzione `Image cornerness_response(const Image& S, int method)`. 
-Ritornate `det(S)/tr(S)` per ciascun pixel. La funzione si aspetta un 
-parametro `method`. Nel caso sia `1`, ritornate il secondo autovalore invece di 
-`det(S)/tr(S)`.
+Ritornate `det(S)/tr(S)` per ciascun pixel. A lezone abbiamo visto funzioni 
+di _cornerness_ basate `R = min(s_1, s_2)` e `R = det(S) - tr(S)^2`. Quella 
+che usiamo qui è una nuova variante, `R = det(S)/tr(S)`. La 
+funzione si aspetta un parametro `method`. A seconda se valga 0, 1 o 2 
+potete scegliere uno dei tre metodi. Per iniziare comunque implementate 
+l'ultimo (`det(S)/tr(S)`).
 
 ## 1.3 Non-maximum suppression ##
 
