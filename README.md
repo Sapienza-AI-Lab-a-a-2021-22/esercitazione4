@@ -149,11 +149,12 @@ Potete visualizzare il risultato salvato da `test4` con il nome di
 ### 1.1b rendere più veloce lo smoothing ###
 
 Per rendere l'implementazione più efficiente,
-usate la proprietà di separabilità del filtro gaussiano e implementatelo
-usando `make_gx_filter` e `make_gy_filter` dell'esercitazione 2.
-Invece di usare un filtro NxN bidimensionale, ne userete due 1xN e Nx1.
+usate la proprietà di separabilità del filtro gaussiano, implementando un 
+filtro monodimensionale e applicandolo prima alle righe e poi alle colonne.
+In questo modo, invece di usare un filtro NxN bidimensionale, ne userete due 
+1xN e Nx1.
 
-Per farlo completate `Image make_1d_gaussian(float sigma)` e 
+Completate `Image make_1d_gaussian(float sigma)` e 
 `Image smooth_image(const Image& im, float sigma)` .
 
 ## 1.2 Calcolare i candidati (cornerness function) a partire dealla matrice S ##
