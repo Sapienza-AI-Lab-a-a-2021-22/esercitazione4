@@ -312,7 +312,7 @@ Image operator+(const Image& a, const Image& b);
 
 
 // Harris and panorama
-Image structure_matrix(const Image& im, float sigma);
+Image structure_matrix(const Image& im, float sigma, bool fast=true);
 Image cornerness_response(const Image& S, int method);
 Image nms_image(const Image& im, int w);
 vector<Descriptor> detect_corners(const Image& im, const Image& nms, float thresh, int window);

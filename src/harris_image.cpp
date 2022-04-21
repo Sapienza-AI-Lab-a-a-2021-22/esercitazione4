@@ -83,6 +83,8 @@ Image make_1d_gaussian(float sigma) {
         lin(x,0,0) = val;
     }
 
+    lin.l2_normalize();
+
     return lin;
 }
 
@@ -114,7 +116,7 @@ Image smooth_image(const Image &im, float sigma) {
 // float sigma: std dev. to use for weighted sum.
 // returns: structure matrix. 1st channel is Ix^2, 2nd channel is Iy^2,
 //          third channel is IxIy.
-Image structure_matrix(const Image &im2, float sigma) {
+Image structure_matrix(const Image &im2, float sigma, bool fast) {
     TIME(1);
     // only grayscale or rgb
     assert((im2.c == 1 || im2.c == 3) && "only grayscale or rgb supported");
@@ -141,9 +143,13 @@ Image structure_matrix(const Image &im2, float sigma) {
         }
     }
 
-    Image f = make_gaussian_filter(sigma);
-    S = convolve_image(S, f, true);
-    //smooth_image()
+    if(fast){
+        S = smooth_image(S, sigma);
+    }
+    else{
+        Image f = make_gaussian_filter(sigma);
+        S = convolve_image(S, f, true);
+    }
 
     return S;
 }

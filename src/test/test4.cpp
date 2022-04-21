@@ -10,7 +10,7 @@ using namespace std;
 void test_structure()
   {
   Image im = load_image("data/dogbw.png");
-  Image s = structure_matrix(im, 2);
+  Image s = structure_matrix(im, 2, true);
   s.feature_normalize_total();
   save_png(s, "output/structure");
   Image gt = load_image("data/structure.png");
@@ -21,7 +21,7 @@ void test_structure()
 void test_cornerness()
   {
   Image im = load_image("data/dogbw.png");
-  Image s = structure_matrix(im, 2);
+  Image s = structure_matrix(im, 2, true);
   Image c = cornerness_response(s,0);
   c.feature_normalize_total();
   save_png(c, "output/response");
