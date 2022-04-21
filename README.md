@@ -171,11 +171,12 @@ l'ultimo (`det(S)/tr(S)`).
 
 Completate `Image nms_image(const Image& im, int w)`.
 
-**[CAPIRE SE RILEVANTE] For every pixel in `im`, check every neighbor within 
-`w` pixels (Chebyshev 
-distance). Equivalently, check the `2w+1` window centered at each pixel. If 
-any responses are stronger, suppress that pixel's response (set it to a very 
-low negative number).**
+A differenza della soluzione del Canny Edge detector, in questo caso 
+implementiamo un NMS più semplice. Per ogni pixel, controllate tutti i pixel a 
+distanza `w`, vale a dire tutti i pixel in una finestra di dimensioni `2w+1` 
+attorno a ciascun pixel. Se uno qualunque dei pixel nella finestra ha 
+intensità maggiore di quello centrale, impostate quest'ultimo ad un numero 
+negativo molto basso e passate al successivo.
 
 ## 1.4 Completate l'Harris detector ##
 
