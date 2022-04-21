@@ -9,6 +9,7 @@
 
 #include <set>
 #include <thread>
+#include <iostream>
 
 using namespace std;
 
@@ -178,11 +179,10 @@ match_descriptors(const vector<Descriptor> &a, const vector<Descriptor> &b) {
 
     for(int i = 0; i < a.size(); i ++) {
         int mb = match_a2b[i];
-        if (mb > 0) {
-            if (match_b2a[mb] == i) {
-                m.push_back(Match(&a[i], &b[mb], l1_distance(a[i].data, b[mb].data)));
-            }
+        if (match_b2a[mb] == i) {
+            m.push_back(Match(&a[i], &b[mb], l1_distance(a[i].data, b[mb].data)));
         }
+
     }
 
     return m;
