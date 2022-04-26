@@ -97,9 +97,8 @@ Image draw_inliers(const Image &a, const Image &b, const Matrix &H,
 // float sigma: gaussian for harris corner detector. Typical: 2
 // float thresh: threshold for corner/no corner. Typical: 1-5
 // int nms: window to perform nms on. Typical: 3
-Image
-find_and_draw_matches(const Image &a, const Image &b, float sigma, float thresh,
-                      int window, int nms, int corner_method) {
+Image find_and_draw_matches(const Image &a, const Image &b, float sigma,
+                            float thresh, int window, int nms, int corner_method) {
     vector<Descriptor> ad = harris_corner_detector(a, sigma, thresh, window,
                                                    nms, corner_method);
     vector<Descriptor> bd = harris_corner_detector(b, sigma, thresh, window,
@@ -164,8 +163,7 @@ vector<int> match_descriptors_a2b(const vector<Descriptor> &a,
 // const vector<Descriptor>& a, b: array of descriptors for pixels in two images.
 // returns: best matches found. each descriptor in a should match with at most
 //          one other descriptor in b.
-vector<Match>
-match_descriptors(const vector<Descriptor> &a, const vector<Descriptor> &b) {
+vector<Match> match_descriptors(const vector<Descriptor> &a, const vector<Descriptor> &b) {
     if (a.size() == 0 || b.size() == 0)return {};
 
     vector<Match> m;
