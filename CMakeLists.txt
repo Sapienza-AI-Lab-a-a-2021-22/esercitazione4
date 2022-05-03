@@ -2,10 +2,11 @@ cmake_minimum_required(VERSION 2.8)
 
 project(cse576-hw5)
 
-set(CMAKE_CXX_FLAGS "-fdiagnostics-color=always -std=c++14 -pthread -O0 -g -march=native -fPIC")
+set(CMAKE_CXX_FLAGS "-fdiagnostics-color=always -std=c++14 -pthread -O3 -g -march=native -fPIC")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/)
-
+find_package( OpenCV REQUIRED )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 add_library(uwimg++ SHARED
         src/utils.cpp
@@ -24,7 +25,7 @@ add_library(uwimg++ SHARED
 
         src/matrix.cpp
         src/matrix.h
-        )
+        src/display-panorama.cpp)
 
 link_libraries(uwimg++ m stdc++)
 
@@ -32,5 +33,7 @@ add_executable(test1 src/test/test1.cpp)
 add_executable(test2 src/test/test2.cpp)
 add_executable(test4 src/test/test4.cpp)
 add_executable(make-panorama src/test/make-panorama.cpp)
+add_executable( display-panorama src/display-panorama.cpp)
+target_link_libraries( display-panorama ${OpenCV_LIBS} )
 
 add_subdirectory(src/pango)

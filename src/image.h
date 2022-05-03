@@ -319,6 +319,7 @@ vector<Descriptor> detect_corners(const Image& im, const Image& nms, float thres
 vector<Descriptor> harris_corner_detector(const Image& im, float sigma, float thresh, int window, int nms, int corner_method);
 Image detect_and_draw_corners(const Image& im, float sigma, float thresh, int window, int nms, int corner_method);
 Image mark_corners(const Image& im, const vector<Descriptor>& d);
+void mark_spot(Image &im, const Point &p);
 
 // Panorama
 Image both_images(const Image& a, const Image& b);

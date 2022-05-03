@@ -11,6 +11,7 @@
 #include <thread>
 #include <iostream>
 
+
 using namespace std;
 
 // Comparator for matches
@@ -171,11 +172,11 @@ vector<Match> match_descriptors(const vector<Descriptor> &a, const vector<Descri
     // TODO: use match_descriptors_a2b(a,b) and match_descriptors_a2b(b,a)
     // and populate `m` with good matches!
 
-    vector<int> match_a2b = match_descriptors_a2b (a, b);
-    vector<int> match_b2a = match_descriptors_a2b (b, a);
+    vector<int> match_a2b = match_descriptors_a2b(a, b);
+    vector<int> match_b2a = match_descriptors_a2b(b, a);
 
 
-    for(int i = 0; i < a.size(); i ++) {
+    for (int i = 0; i < a.size(); i++) {
         int mb = match_a2b[i];
         if (match_b2a[mb] == i) {
             m.push_back(Match(&a[i], &b[mb], l1_distance(a[i].data, b[mb].data)));
@@ -197,10 +198,13 @@ Point project_point(const Matrix &H, const Point &p) {
     // Remember that homogeneous coordinates are equivalent up to scalar.
     // Have to divide by.... something...
 
-    NOT_IMPLEMENTED();
+    Point pp(0, 0);
 
+    double div = H(2, 0) * p.x + H(2, 1) * p.y + 1;
+    pp.x = (H(0, 0) * p.x + H(0, 1) * p.y + H(0, 2)) / div;
+    pp.y = (H(1, 0) * p.x + H(1, 1) * p.y + H(1, 2)) / div;
 
-    return Point(0, 0);
+    return pp;
 }
 
 // HW5 3.2a
@@ -209,8 +213,8 @@ Point project_point(const Matrix &H, const Point &p) {
 // returns: L2 distance between them.
 double point_distance(const Point &p, const Point &q) {
     // TODO: should be a quick one.
-    NOT_IMPLEMENTED();
-    return 0;
+    double dist = sqrt(pow((p.x - q.x), 2) + pow((p.y - q.y), 2));
+    return dist;
 }
 
 // HW5 3.2b
@@ -220,13 +224,17 @@ double point_distance(const Point &p, const Point &q) {
 // const vector<Match>& m: matches to compute inlier/outlier.
 // float thresh: threshold to be an inlier.
 // returns: inliers whose projected point falls within thresh of their match in the other image.
-vector<Match>
-model_inliers(const Matrix &H, const vector<Match> &m, float thresh) {
+vector<Match> model_inliers(const Matrix &H, const vector<Match> &m, float thresh) {
     vector<Match> inliers;
     // TODO: fill inliers
     // i.e. distance(H*a.p, b.p) < thresh
 
-    NOT_IMPLEMENTED();
+    for (int i = 0; i < m.size(); i++) {
+        Point pp = project_point(H, m[i].a->p);
+        if (point_distance(pp, m[i].b->p) < thresh) {
+            inliers.push_back(m[i]);
+        }
+    }
 
     return inliers;
 }
@@ -238,8 +246,11 @@ void randomize_matches(vector<Match> &m) {
     // TODO: implement Fisher-Yates to shuffle the array.
     // You might want to use the swap function like:
     // swap(m[0],m[1]) which swaps the first and second element
+    for (int i = m.size() - 1; i > 0; i--) {
+        int j = rand() % (i + 1);
+        swap(m[i], m[j]);
+    }
 
-    NOT_IMPLEMENTED();
 }
 
 // HW5 3.4
@@ -248,9 +259,7 @@ void randomize_matches(vector<Match> &m) {
 // int n: number of matches to use in calculating homography.
 // returns: matrix representing homography H that maps image a to image b.
 Matrix compute_homography_ba(const vector<Match> &matches) {
-    if (matches.size() < 4)
-        printf("Need at least 4 points for homography! %zu supplied\n",
-               matches.size());
+    if (matches.size() < 4)printf("Need at least 4 points for homography! %zu supplied\n", matches.size());
     if (matches.size() < 4)return Matrix::identity(3, 3);
 
     Matrix M(matches.size() * 2, 8);
@@ -264,17 +273,46 @@ Matrix compute_homography_ba(const vector<Match> &matches) {
         double ny = matches[i].b->p.y;
         // TODO: fill in the matrices M and b.
 
-        NOT_IMPLEMENTED();
+        M(i * 2, 0) = mx;
+        M(i * 2, 1) = my;
+        M(i * 2, 2) = 1;
+        M(i * 2, 3) = 0;
+        M(i * 2, 4) = 0;
+        M(i * 2, 5) = 0;
+        M(i * 2, 6) = -nx * mx;
+        M(i * 2, 7) = -nx * my;
+
+        M(i * 2 + 1, 0) = 0;
+        M(i * 2 + 1, 1) = 0;
+        M(i * 2 + 1, 2) = 0;
+        M(i * 2 + 1, 3) = mx;
+        M(i * 2 + 1, 4) = my;
+        M(i * 2 + 1, 5) = 1;
+        M(i * 2 + 1, 6) = -ny * mx;
+        M(i * 2 + 1, 7) = -ny * my;
+
+
+        b(i * 2, 0) = nx;
+        b(i * 2 + 1, 0) = ny;
 
     }
-
 
     Matrix a = solve_system(M, b);
 
     Matrix Hba(3, 3);
     // TODO: fill in the homography H based on the result in a.
 
-    NOT_IMPLEMENTED();
+    Hba(0, 0) = a(0, 0);
+    Hba(0, 1) = a(1, 0);
+    Hba(0, 2) = a(2, 0);
+
+    Hba(1, 0) = a(3, 0);
+    Hba(1, 1) = a(4, 0);
+    Hba(1, 2) = a(5, 0);
+
+    Hba(2, 0) = a(6, 0);
+    Hba(2, 1) = a(7, 0);
+    Hba(2, 2) = 1;
 
     return Hba;
 }
@@ -292,21 +330,46 @@ Matrix RANSAC(vector<Match> m, float thresh, int k, int cutoff) {
         return Matrix::identity(3, 3);
     }
 
-    int best = 0;
+
     Matrix Hba = Matrix::translation_homography(256, 0);
-    // TODO: fill in RANSAC algorithm.
+    vector<Match> best_inliers;
+
     // for k iterations:
-    //     shuffle the matches
-    //     compute a homography with a few matches (how many??)
-    //     if new homography is better than old (how can you tell?):
-    //         compute updated homography using all inliers
-    //         remember it and how good it is
-    //         if it's better than the cutoff:
-    //             return it immediately
-    // if we get to the end return the best homography
+    for (int i = 0; i < k; i++) {
 
-    NOT_IMPLEMENTED();
+        // shuffle the matches
+        randomize_matches(m);
 
+        // compute a homography with a few matches (how many??)
+        vector<Match> sample;
+        sample.assign(m.begin(), m.begin() + 4);
+        Matrix H = compute_homography_ba(sample);
+        vector<Match> inliers = model_inliers(H, m, thresh);
+
+        // if new homography is better than old (how can you tell?):
+        if (inliers.size() > best_inliers.size()) {
+            // compute updated homography using all inliers
+            sample.insert(sample.end(), inliers.begin(), inliers.end());
+
+            // debug output
+            cout << "matrix before" << endl;
+            H.print();
+            H = compute_homography_ba(sample);
+            cout << "matrix after" << endl;
+            H.print();
+            cout << "Inliers: " << inliers.size() << endl;
+
+            // remember it and how good it is
+            Hba = H;
+            best_inliers = inliers;
+        }
+
+        // if it's better than the cutoff:
+        if (best_inliers.size() > cutoff)
+            break;
+    }
+
+    // printf("Inliers: %d\tCutoff: %d\n", best_inliers.size(), cutoff);
     return Hba;
 }
 
@@ -345,9 +408,8 @@ Image trim_image(const Image &a) {
 // Matrix H: homography from image a coordinates to image b coordinates.
 // float acoeff: blending coefficient
 // returns: combined image stitched together.
-Image combine_images(const Image &a, const Image &b, const Matrix &Hba,
-                     float ablendcoeff) {
-    //TIME(1);
+Image combine_images(const Image &a, const Image &b, const Matrix &Hba, float ablendcoeff) {
+    TIME(1);
     Matrix Hinv = Hba.inverse();
 
     // Project the corners of image b into image a coordinates.
@@ -385,7 +447,7 @@ Image combine_images(const Image &a, const Image &b, const Matrix &Hba,
         for (int j = 0; j < a.h; ++j)
             for (int i = 0; i < a.w; ++i) {
                 // TODO: fill in.
-                NOT_IMPLEMENTED();
+                c(i - dx, j - dy, k) = a(i, j, k);
             }
 
     // TODO: Blend in image b as well.
@@ -394,19 +456,22 @@ Image combine_images(const Image &a, const Image &b, const Matrix &Hba,
     // inside of the bounds of image b. If so, use bilinear interpolation to
     // estimate the value of b at that projection, then fill in image c.
 
-    // When doing cylindrical and spherical, how do we cope with the missing
-    // image values due to the warping process? Consider skipping them?
-    // How do we know they are empty? Look in the image class for the function
-    // "is_nonempty_patch" and try to figure out why it might be useful.
-    // The member
+    // TODO: Reduce the loop to the not obvious pixels
 
-    // TODO: Put your code here.
-
-    NOT_IMPLEMENTED();
+    for(int j=0; j<c.w; ++j){
+        for(int i=0; i<c.h; ++i) {
+            Point pp = project_point(Hba, Point(j+dx,i+dy));
+            if ((pp.x >= 0 && pp.x <= b.w) && (pp.y >= 0 && pp.y <= b.h)) {
+                for(int k=0; k< c.c; ++k)
+                    c(j, i, k) = b.pixel_bilinear(pp.x, pp.y, k);
+            }
+        }
+    }
 
 
     // We trim the image so there are as few as possible black pixels.
-    return trim_image(c);
+    //return trim_image(c);
+    return c;
 }
 
 // Create a panoramam between two images.
@@ -417,23 +482,15 @@ Image combine_images(const Image &a, const Image &b, const Matrix &Hba,
 // float inlier_thresh: threshold for RANSAC inliers. Typical: 2-5
 // int iters: number of RANSAC iterations. Typical: 1,000-50,000
 // int cutoff: RANSAC inlier cutoff. Typical: 10-100
-Image
-panorama_image(const Image &a, const Image &b, float sigma, int corner_method,
-               float thresh, int window, int nms, float inlier_thresh,
-               int iters, int cutoff, float acoeff) {
+Image panorama_image(const Image &a, const Image &b, float sigma, int corner_method, float thresh, int window, int nms,
+                     float inlier_thresh, int iters, int cutoff, float acoeff) {
     // Calculate corners and descriptors
     vector<Descriptor> ad;
     vector<Descriptor> bd;
 
     // doing it multithreading...
-    thread tha([&]() {
-        ad = harris_corner_detector(a, sigma, thresh, window, nms,
-                                    corner_method);
-    });
-    thread thb([&]() {
-        bd = harris_corner_detector(b, sigma, thresh, window, nms,
-                                    corner_method);
-    });
+    thread tha([&]() { ad = harris_corner_detector(a, sigma, thresh, window, nms, corner_method); });
+    thread thb([&]() { bd = harris_corner_detector(b, sigma, thresh, window, nms, corner_method); });
     tha.join();
     thb.join();
 
@@ -445,40 +502,4 @@ panorama_image(const Image &a, const Image &b, float sigma, int corner_method,
 
     // Stitch the images together with the homography
     return combine_images(a, b, Hba, acoeff);
-}
-
-// HW5 4.1
-// Project an image onto a cylinder.
-// const Image& im: image to project.
-// float f: focal length used to take image (in pixels).
-// returns: image projected onto cylinder, then flattened.
-Image cylindrical_project(const Image &im, float f) {
-    //TODO: project image onto a cylinder
-    double hfov = atan(im.w / (2 * f));
-    double vfov = im.h / 2. / f;
-
-    // For your convenience we have computed the output size
-    Image c(im.w / cos(hfov), im.h / cos(hfov), im.c);
-
-    NOT_IMPLEMENTED();
-
-    return c;
-}
-
-// HW5 4.2
-// Project an image onto a cylinder.
-// const Image& im: image to project.
-// float f: focal length used to take image (in pixels).
-// returns: image projected onto cylinder, then flattened.
-Image spherical_project(const Image &im, float f) {
-    //TODO: project image onto a sphere
-    double hfov = atan(im.w / (2 * f));
-    double vfov = atan(im.h / (2 * f));
-
-    // For your convenience we have computed the output size
-    Image c(im.w / cos(hfov), im.h / cos(hfov), im.c);
-
-    NOT_IMPLEMENTED();
-
-    return c;
 }

@@ -44,29 +44,35 @@ int main(int argc, char **argv)
   //test_matrix();
   
   run_tests();
-  
+
+  srand (time(NULL));
+
   Image a = load_image("pano/rainier/Rainier1.png");
   Image b = load_image("pano/rainier/Rainier2.png");
-  
-  Image corners=detect_and_draw_corners(a, 2, 0.4, 5, 3, 0);
+
+  float cor_thresh = 0.1;
+  int desc_window = 7;
+  int nms_window = 3;
+  int ransac_iters = 10000;
+  float ransac_inlier_thresh = 2;
+  Image corners=detect_and_draw_corners(a, 2, cor_thresh, desc_window, nms_window, 0);
   save_image(corners, "output/corners");
-  
-  
-  vector<Descriptor> ad=harris_corner_detector(a, 2, 0.4, 5, 3, 0);
-  vector<Descriptor> bd=harris_corner_detector(b, 2, 0.4, 5, 3, 0);
+
+  vector<Descriptor> ad=harris_corner_detector(a, 2, cor_thresh, desc_window, nms_window, 0);
+  vector<Descriptor> bd=harris_corner_detector(b, 2, cor_thresh, desc_window, nms_window, 0);
   
   vector<Match> match=match_descriptors(ad,bd);
-  Image inliers=draw_inliers(a,b,RANSAC(match,5,10000,50),match,5);
+  Image inliers=draw_inliers(a,b,RANSAC(match,ransac_inlier_thresh,ransac_iters,50),match,ransac_inlier_thresh);
   
-  Image m = find_and_draw_matches(a, b, 2, 0.4, 7, 3, 0);
-  Image pan=panorama_image(a,b,2,0,0.3,7,3,5,1000,50,0.5);
-  
-  save_image(m, "output/matches");
+  Image m = find_and_draw_matches(a, b, 2, cor_thresh, desc_window, nms_window, 0);
+  Image pan=panorama_image(a,b,2,0,cor_thresh,desc_window,nms_window,ransac_inlier_thresh,ransac_iters,50,0.5);
+
   save_image(inliers, "output/inliers");
+  save_image(m, "output/matches");
   save_image(pan, "output/easy_panorama");
   
-  save_image(panorama_image(cylindrical_project(a,500),cylindrical_project(b,500),2,0,0.3,7,3,5,1000,50,0.5), "output/easy_panorama_cyl");
-  save_image(panorama_image(spherical_project(a,500),spherical_project(b,500),2,0,0.3,7,3,5,1000,50,0.5), "output/easy_panorama_sphere");
+//  save_image(panorama_image(cylindrical_project(a,500),cylindrical_project (b,500),2,0,0.3,7,3,5,1000,50,0.5), "output/easy_panorama_cyl");
+// save_image(panorama_image(spherical_project(a,500),spherical_project(b,500),2,0,0.3,7,3,5,1000,50,0.5), "output/easy_panorama_sphere");
   
   
   return 0;

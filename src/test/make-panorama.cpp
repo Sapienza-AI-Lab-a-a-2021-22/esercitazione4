@@ -42,8 +42,8 @@ void load_images(image_map& im, const string& indir, const string& outdir, int n
     string file=indir+to_string(q1)+".jpg";
     Image in=load_image(file);
     if(PROJ_METHOD==0)im[to_string(q1)]=in;
-    if(PROJ_METHOD==1)im[to_string(q1)]=cylindrical_project(in,FOCAL_LEN);
-    if(PROJ_METHOD==2)im[to_string(q1)]=spherical_project(in,FOCAL_LEN);
+//    if(PROJ_METHOD==1)im[to_string(q1)]=cylindrical_project(in,FOCAL_LEN);
+//    if(PROJ_METHOD==2)im[to_string(q1)]=spherical_project(in,FOCAL_LEN);
     printf("%s loaded into im[\"%s\"]\n",file.c_str(),to_string(q1).c_str());
     }));
   for(auto&e1:th)e1->join();th.clear();
@@ -67,7 +67,7 @@ void do_columbia_peak(void)
   string outdir="output/columbia/";
   
   image_map im;
-  load_images(im,indir,outdir,11,2,1310);  // im, dir, numpics (0..numpics-1),  PROJ_METHOD,  FOCAL_LEN
+  load_images(im,indir,outdir,11,0,1310);  // im, dir, numpics (0..numpics-1),  PROJ_METHOD,  FOCAL_LEN
   
   vector < thread > th; 
   
@@ -121,7 +121,7 @@ void do_field(void)
   string outdir="output/field/";
   
   image_map im;
-  load_images(im,indir,outdir,8,1,1200);  // im, dir, numpics (0..numpics-1),  PROJ_METHOD,  FOCAL_LEN
+  load_images(im,indir,outdir,8,0,1200);  // im, dir, numpics (0..numpics-1),  PROJ_METHOD,  FOCAL_LEN
   
   vector < thread > th; 
   
@@ -149,7 +149,7 @@ void do_helens(void)
   string outdir="output/helens/";
   
   image_map im;
-  load_images(im,indir,outdir,6,1,950);  // im, dir, numpics (0..numpics-1),  PROJ_METHOD,  FOCAL_LEN
+  load_images(im,indir,outdir,6,0,950);  // im, dir, numpics (0..numpics-1),  PROJ_METHOD,  FOCAL_LEN
   
   vector < thread > th; 
   
@@ -175,7 +175,7 @@ void do_sun(void)
   string outdir="output/sun/";
   
   image_map im;
-  load_images(im,indir,outdir,5,1,1000);  // im, dir, numpics (0..numpics-1),  PROJ_METHOD,  FOCAL_LEN
+  load_images(im,indir,outdir,5,0,1000);  // im, dir, numpics (0..numpics-1),  PROJ_METHOD,  FOCAL_LEN
   
   vector < thread > th; 
   

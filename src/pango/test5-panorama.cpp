@@ -21,8 +21,8 @@ struct Data
   void process(int proj, float focal,float sigma, int nms_rad, float thresh_corner, int window, int corner_method)
     {
     if(proj==0)image=input;
-    if(proj==1)image=cylindrical_project(input,focal);
-    if(proj==2)image=spherical_project(input,focal);
+//    if(proj==1)image=cylindrical_project(input,focal);
+//    if(proj==2)image=spherical_project(input,focal);
     structure = structure_matrix(image,sigma);
     response = cornerness_response(structure,corner_method);
     nms = nms_image(response,nms_rad);
